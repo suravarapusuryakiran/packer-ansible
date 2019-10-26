@@ -1,0 +1,16 @@
+---
+# tasks file for nginx
+- name: Install nginx
+  apt: name=nginx state=present
+
+- name: Remove default nginx config
+  file: name=/etc/nginx/sites-enabled/default state=absent
+
+- name: Install system nginx config
+  template: src=templates/nginx.conf dest=/etc/nginx/nginx.conf
+
+# Adding below line of my own
+
+- name: Ensure nginx is started and enabled to start at boot.
+  service: name=nginx state=started enabled=yes
+

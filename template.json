@@ -1,0 +1,61 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "ssh_username": "",
+    "name": "ubuntu-bionic-18.04-amd64-server-*"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "ssh_username": "{{user `ssh_username`}}",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-east-1",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu-bionic-18.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "amazon"
+        ],
+        "most_recent": true
+      },
+      "instance_type": "t2.micro",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ami_name": "packer-example {{timestamp}}",
+	  "tags":{
+		"Name": "JavaHome - {{timestamp}}"
+	  }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "scripts/ansible.sh" 
+    },
+
+    {
+        "type": "ansible-local",
+        "playbook_file": "ansible/site.yml",
+        "role_paths":[
+            "ansible/roles/git",
+            "ansible/roles/mysql",
+            "ansible/roles/nginx",
+            "ansible/roles/growlerfriday"
+
+        ],
+
+        "group_vars": "ansible/group_vars"
+    },
+    
+    {
+        "type": "shell",
+        "script": "scripts/cleanup.sh"
+    
+    }
+  ]
+
+}
